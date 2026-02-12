@@ -51,9 +51,10 @@ mermaid:
   exclude_encode: false
 
 # ===== Emoji表情配置 =====
-emoji:
+githubEmojis:
   enable: true
-  className: emoji
+  className: github-emoji
+  inject: true
   styles:
   customEmojis:
 
