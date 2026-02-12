@@ -77,6 +77,15 @@ jobs:
           echo "===== public目录关键文件（index.html） ====="
           head -20 ./public/index.html
 
+      - name: Inject Mermaid Support
+        run: |
+          echo "===== 注入 Mermaid 支持 ====="
+          # 创建 Mermaid 初始化脚本
+          MERMAID_SCRIPT='<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("pre code.language-mermaid,pre code.mermaid").forEach(function(el){var div=document.createElement("div");div.className="mermaid";div.textContent=el.textContent;el.parentNode.replaceWith(div)});mermaid.initialize({startOnLoad:true,theme:"neutral",themeVariables:{background:"transparent"}});mermaid.run()});</script>'
+          # 注入到所有 HTML 文件的 </body> 标签前
+          find ./public -name "*.html" -exec sed -i "s|</body>|${MERMAID_SCRIPT}</body>|g" {} \;
+          echo "✅ Mermaid 注入完成"
+
       - name: Deploy to riiiccck.github.io
         uses: peaceiris/actions-gh-pages@v4
         with:
