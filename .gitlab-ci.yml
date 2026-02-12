@@ -1,0 +1,28 @@
+image: node:18
+
+stages:
+  - build
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+build_hexo:
+  stage: build
+  script:
+    - node -v
+    - npm -v
+    - npm config get registry
+    - npm install --no-audit --no-fund
+    - npx hexo clean
+    - npx hexo generate --debug
+    - test -f ./public/index.html
+    - ls -la ./public
+  artifacts:
+    paths:
+      - public/
+    expire_in: 1 week
