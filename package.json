@@ -2,6 +2,9 @@
   "name": "hexo-blog-source",
   "version": "1.0.0",
   "private": true,
+  "hexo": {
+    "version": "7.3.0"
+  },
   "dependencies": {
     "hexo": "^7.3.0",
     "hexo-deployer-git": "^4.0.0",
