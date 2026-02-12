@@ -2,68 +2,44 @@ name: Hexo Auto Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取源码
+      # 1. 拉源码
       - name: Checkout Source Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: hexo-source
 
-      # 2. 安装 Node
+      # 2. Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      # 3. 安装 Hexo CLI
+      # 3. Hexo CLI
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      # 4. 初始化 Hexo
-      - name: Initialize Hexo
-        run: |
-          mkdir hexo-blog
-          cd hexo-blog
-          hexo init .
-          npm install
+      # 4. 安装依赖
+      - name: Install Dependencies
+        run: npm install
 
-      # 5. 覆盖为你自己的内容
-      - name: Copy Custom Files
-        run: |
-          cp -f ./hexo-source/_config.yml ./hexo-blog/_config.yml
-          cp -f ./hexo-source/package.json ./hexo-blog/package.json
-
-          mkdir -p ./hexo-blog/source/_posts
-          cp -rf ./hexo-source/source/_posts/* ./hexo-blog/source/_posts/ || true
-
-          mkdir -p ./hexo-blog/scaffolds
-          cp -rf ./hexo-source/scaffolds/* ./hexo-blog/scaffolds/ || true
-
-          cd hexo-blog
-          npm install
-
-      # 6. 生成静态文件
+      # 5. 生成静态文件
       - name: Generate Static Files
         run: |
-          cd hexo-blog
           hexo clean
           hexo generate
 
-      # 7. 发布到 GitHub Pages 仓库
+      # 6. 部署到 GitHub Pages 仓库
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
+          publish_dir: ./public
           external_repository: riiiccck/riiiccck.github.io
           publish_branch: main
-          publish_dir: ./hexo-blog/public
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
