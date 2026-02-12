@@ -20,7 +20,7 @@ deploy:
   type: ''
 
 # ===== 主题配置 =====
-theme: landscape
+theme: next
 
 # ===== RSS订阅配置 =====
 feed:

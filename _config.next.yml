@@ -1,0 +1,120 @@
+# ===== NexT 主题配置 =====
+
+# 主题风格 (Muse | Mist | Pisces | Gemini)
+scheme: Gemini
+
+# 暗黑模式 (true 自动跟随系统 | false 关闭)
+darkmode: true
+
+# 菜单配置
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  categories: /categories/ || fa fa-th
+  tags: /tags/ || fa fa-tags
+  about: /about/ || fa fa-user
+
+# 侧边栏配置
+sidebar:
+  position: left
+  display: post
+  padding: 18
+  offset: 12
+
+# 头像配置
+avatar:
+  url: /images/avatar.gif
+  rounded: true
+  rotated: false
+
+# 社交链接
+social:
+  GitHub: https://github.com/riiiccck || fab fa-github
+
+# 代码块配置
+codeblock:
+  theme:
+    light: default
+    dark: tomorrow-night
+  copy_button:
+    enable: true
+    style: flat
+
+# 返回顶部按钮
+back2top:
+  enable: true
+  sidebar: false
+  scrollpercent: true
+
+# 阅读进度条
+reading_progress:
+  enable: true
+  position: top
+  color: "#37c6c0"
+  height: 3px
+
+# 页脚配置
+footer:
+  since: 2026
+  icon:
+    name: fa fa-heart
+    animated: true
+    color: "#ff0000"
+  powered: true
+  beian:
+    enable: false
+
+# 字数统计
+symbols_count_time:
+  separated_meta: true
+  item_text_total: true
+
+# 数学公式 (MathJax)
+math:
+  mathjax:
+    enable: true
+    tags: none
+
+# Mermaid 图表
+mermaid:
+  enable: true
+  theme:
+    light: neutral
+    dark: dark
+
+# GitHub Emoji
+github_emoji:
+  enable: true
+
+# 本地搜索
+local_search:
+  enable: true
+  trigger: auto
+  top_n_per_article: 1
+  unescape: false
+  preload: false
+
+# 动画效果
+motion:
+  enable: true
+  async: false
+  transition:
+    menu_item: fadeInDown
+    post_block: fadeIn
+    post_header: fadeInDown
+    post_body: fadeIn
+    coll_header: fadeInLeft
+    sidebar: fadeInUp
+
+# 字体配置
+font:
+  enable: true
+  global:
+    external: true
+    family: Noto Sans SC
+    size: 1
+
+# 显示更新时间
+post_meta:
+  updated_at:
+    enable: true
