@@ -1,0 +1,45 @@
+image: node:18
+
+stages:
+  - build
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+build_hexo:
+  stage: build
+  script:
+    - echo "===== Node/npm 版本 ====="
+    - node -v
+    - npm -v
+    - echo "===== 清理可能导致403的代理配置 ====="
+    - unset npm_config_proxy npm_config_https_proxy npm_config_http_proxy HTTP_PROXY HTTPS_PROXY http_proxy https_proxy
+    - npm config delete proxy || true
+    - npm config delete https-proxy || true
+    - npm config delete http-proxy || true
+    - echo "===== 安装依赖 ====="
+    - |
+      if ! npm ci --registry=https://registry.npmmirror.com; then
+        echo "⚠️ npmmirror安装失败，回退到官方npm源"
+        npm ci --registry=https://registry.npmjs.org
+      fi
+    - echo "===== Hexo 构建 ====="
+    - npx hexo clean
+    - npx hexo generate --debug
+    - echo "===== 验证 public 目录 ====="
+    - |
+      if [ ! -d ./public ] || [ -z "$(find ./public -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+        echo "❌ public目录不存在或为空！构建失败，终止部署"
+        exit 1
+      fi
+    - echo "✅ public目录构建成功"
+    - ls -la ./public
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
