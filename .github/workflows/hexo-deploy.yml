@@ -50,7 +50,13 @@ jobs:
           echo "===== 已安装依赖列表 ====="
           npm list --depth=0
 
-
+      - name: Install Landscape Theme
+        run: |
+          echo "===== 下载landscape主题 ====="
+          git clone https://github.com/hexojs/hexo-theme-landscape.git themes/landscape --depth=1
+          rm -rf themes/landscape/.git
+          echo "===== 主题文件列表 ====="
+          ls -la themes/landscape/
 
       - name: Build Hexo Static Files
         run: |
