@@ -87,14 +87,22 @@ jobs:
           mermaid_script = '''<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
           <script>
           document.addEventListener("DOMContentLoaded", function() {
-            var codes = document.querySelectorAll("figure.highlight.mermaid .code pre, pre code.language-mermaid");
-            codes.forEach(function(el) {
-              var div = document.createElement("div");
-              div.className = "mermaid";
-              div.textContent = el.textContent;
-              var parent = el.closest("figure.highlight") || el.parentNode;
-              parent.replaceWith(div);
+            // Mermaid 关键词检测
+            var mermaidKeywords = /^\s*(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|journey|gitGraph|mindmap|timeline|quadrantChart|sankey|xychart)/m;
+            
+            // 查找所有代码块
+            document.querySelectorAll("figure.highlight").forEach(function(fig) {
+              var codeEl = fig.querySelector(".code pre");
+              if (!codeEl) return;
+              var text = codeEl.textContent || codeEl.innerText;
+              if (mermaidKeywords.test(text)) {
+                var div = document.createElement("div");
+                div.className = "mermaid";
+                div.textContent = text;
+                fig.replaceWith(div);
+              }
             });
+            
             if (document.querySelectorAll(".mermaid").length > 0) {
               mermaid.initialize({startOnLoad: false, theme: "neutral"});
               mermaid.run();
@@ -113,6 +121,7 @@ jobs:
                   count += 1
           print(f"✅ 注入完成，处理了 {count} 个 HTML 文件")
           PYEOF
+     
 
 
 
