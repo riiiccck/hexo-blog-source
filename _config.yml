@@ -27,7 +27,6 @@ feed:
   type: atom
   path: atom.xml
   limit: 20
-  hub:
   content: true
   content_limit: 140
   content_limit_delim: ' '
@@ -55,8 +54,7 @@ githubEmojis:
   enable: true
   className: github-emoji
   inject: true
-  styles:
-  customEmojis:
+
 
 # ===== 站点地图配置（SEO） =====
 sitemap:
