@@ -31,17 +31,21 @@ jobs:
 
       - name: Install Dependencies (Hexo+Plugins)
         run: |
+          echo "===== 当前工作目录 ====="
+          pwd
+          ls -la
+
           echo "===== npm版本 ====="
           npm -v
 
           echo "===== 安装项目依赖 ====="
           npm install
 
-          echo "===== 验证hexo核心包已安装 ====="
-          if [ ! -d ./node_modules/hexo ]; then
-            echo "❌ hexo核心包未安装！"
-            exit 1
-          fi
+          echo "===== 检查node_modules目录 ====="
+          ls -la node_modules/ | head -20
+
+          echo "===== 检查hexo核心包 ====="
+          ls -la node_modules/hexo/ || echo "❌ hexo目录不存在"
 
           echo "===== 已安装依赖列表 ====="
           npm list --depth=0
