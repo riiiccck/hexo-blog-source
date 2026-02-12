@@ -7,7 +7,6 @@ tags:
 categories:
   - 技术
 mathjax: true
-mermaid: true
 ---
 
 这是一篇用于测试 Markdown 语法的文章，涵盖常用的格式和元素。
@@ -95,6 +94,8 @@ hexo server
 
 ---
 
+## 链接和图片
+
 ### 链接
 [GitHub](https://github.com)
 [Hexo官网](https://hexo.io)
@@ -126,7 +127,7 @@ ___
 
 ---
 
-## 数学公式（需要插件支持）
+## 数学公式
 
 行内公式：$E = mc^2$
 
@@ -227,10 +228,6 @@ pie title 技术栈分布
     "Other" : 10
 ```
 
-
-
-
-
 ---
 
 ## 脚注
@@ -244,4 +241,3 @@ pie title 技术栈分布
 ## 总结
 
 以上就是常用的 Markdown 语法，Hexo 配合主题可以完美渲染这些内容。如有特殊需求，可以安装额外的插件来扩展功能。
-

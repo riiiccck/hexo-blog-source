@@ -41,14 +41,6 @@ mathjax:
   append_css: true
   every_page: false  # 设为true则每页都加载，或在文章front-matter中设置mathjax: true
 
-# ===== Mermaid图表配置 =====
-mermaid:
-  enable: true
-  version: "10.6.1"
-  options:
-    theme: 'default'
-  exclude_encode: false
-
 # ===== Emoji表情配置 =====
 githubEmojis:
   enable: true
