@@ -17,10 +17,29 @@ build_hexo:
     - echo "===== Node/npm 版本 ====="
     - node -v
     - npm -v
+
     - echo "===== 当前npm registry ====="
     - npm config get registry
-    - echo "===== 安装依赖（避免npm ci严格锁文件导致中断） ====="
-    - npm install
+    - echo "===== 安装依赖 ====="
+    - |
+      if ! npm ci; then
+        echo "⚠️ npm ci失败（常见原因：lockfile严格校验），回退npm install"
+        npm install
+      fi  # 修复：补充第一个if缺失的闭合fi
+    - echo "===== 清理可能导致403的代理配置 ====="
+    - unset npm_config_proxy npm_config_https_proxy npm_config_http_proxy HTTP_PROXY HTTPS_PROXY http_proxy https_proxy
+    - npm config delete proxy || true
+    - npm config delete https-proxy || true
+    - npm config delete http-proxy || true
+    - echo "===== 安装依赖 ====="
+    - |
+      if ! npm ci --registry=https://registry.npmmirror.com; then
+        echo "⚠️ npmmirror安装失败，回退到官方npm源"
+        npm ci --registry=https://registry.npmjs.org
+
+      fi
+
+
     - echo "===== Hexo 构建 ====="
     - npx hexo clean
     - npx hexo generate --debug
