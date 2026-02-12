@@ -37,7 +37,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub自动生成的令牌，无需手动配置
+          github_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}  # GitHub自动生成的令牌，权限不足，需要手动配置
           publish_dir: ./public                      # Hexo生成的静态文件目录
           publish_branch: main                       # 部署仓的主分支（默认main）
           external_repository: riiiccck/riiiccck.github.io  # 替换成你的部署仓（例如 zhangsan/zhangsan.github.io）
