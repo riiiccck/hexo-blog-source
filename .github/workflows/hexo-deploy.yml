@@ -8,42 +8,62 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # 步骤1：拉取源码仓的代码到工作目录
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: hexo-source  # 拉取到hexo-source子目录，避免和初始化目录冲突
 
+      # 步骤2：安装Node.js环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # 降级到18，兼容Hexo
+          node-version: '18'
           cache: 'npm'
 
-      - name: Install Dependencies
+      # 步骤3：安装Hexo CLI
+      - name: Install Hexo CLI
+        run: npm install -g hexo-cli
+
+      # 步骤4：在空目录初始化Hexo（核心修复）
+      - name: Initialize Hexo in Empty Folder
         run: |
-          npm install -g hexo-cli
+          # 创建空目录
+          mkdir -p hexo-blog
+          # 进入空目录执行init（这是hexo允许的操作）
+          cd hexo-blog
+          hexo init .
+          # 安装Hexo依赖
           npm install
 
-      # 新增步骤：初始化Hexo项目（覆盖默认配置，保留自定义_config.yml）
-      - name: Initialize Hexo Project
+      # 步骤5：复制你的自定义文件到Hexo项目目录（保留配置/文章）
+      - name: Copy Custom Files
         run: |
-          # 初始化Hexo（当前目录），强制覆盖默认文件（保留我们的自定义配置）
-          hexo init . --force
-          # 重新安装依赖（避免init覆盖package.json）
+          # 复制核心配置文件（覆盖默认的_config.yml）
+          cp -f ./hexo-source/_config.yml ./hexo-blog/_config.yml
+          # 复制package.json（确保依赖版本一致）
+          cp -f ./hexo-source/package.json ./hexo-blog/package.json
+          # 复制文章目录（保留你的测试文章）
+          mkdir -p ./hexo-blog/source/_posts
+          cp -rf ./hexo-source/source/_posts/* ./hexo-blog/source/_posts/
+          # 复制模板目录
+          mkdir -p ./hexo-blog/scaffolds
+          cp -rf ./hexo-source/scaffolds/* ./hexo-blog/scaffolds/
+          # 重新安装依赖（确保依赖匹配）
+          cd hexo-blog
           npm install
-          # 拉取默认主题（landscape）
-          git clone https://github.com/hexojs/hexo-theme-landscape.git themes/landscape
 
+      # 步骤6：生成静态文件
       - name: Generate Static Files
         run: |
+          cd hexo-blog
           hexo clean && hexo generate
 
+      # 步骤7：部署到GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
-          publish_dir: ./public
-          publish_branch: main
-          external_repository: riiiccck/riiiccck.github.io
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          publish_dir: ./hexo-blog/public 
+ 
