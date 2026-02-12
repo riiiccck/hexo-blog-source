@@ -8,29 +8,46 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    # 开启完整的错误捕获，构建失败直接终止
     steps:
-      # 1. 拉取源码
+      # 1. 拉取源码 + 子模块（关键修复：获取主题文件）
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          # 拉取所有历史（避免Hexo构建时git信息缺失）
+          fetch-depth: 0
+          # 拉取子模块（主题依赖）
+          submodules: recursive
 
-      # 2. 安装 Node
+      # 2. 安装 Node + 缓存依赖（提升速度+稳定性）
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          # 缓存npm依赖，避免重复安装
+          cache: 'npm'
 
-      # 3. 安装依赖
+      # 3. 安装依赖（增加错误输出）
       - name: Install dependencies
         run: |
-          npm install
-          npm install -g hexo-cli
+          # 打印npm版本，便于排查
+          npm -v
+          # 安装项目依赖（含hexo相关插件）
+          npm install --verbose
+          # 全局安装hexo-cli（指定版本，避免版本兼容问题）
+          npm install -g hexo-cli@latest
 
-      # 4. 生成静态文件
+      # 4. 生成静态文件（增加错误校验，打印日志）
       - name: Build Hexo
         run: |
+          # 打印hexo版本
+          hexo -v
+          # 清理旧文件
           hexo clean
-          hexo generate
+          # 生成静态文件（--debug打印详细日志，失败则终止）
+          hexo generate --debug
+          # 验证public目录是否有内容（关键：空则终止）
+          ls -la ./public || (echo "public目录为空，构建失败" && exit 1)
 
       # 5. 部署到 GitHub Pages 仓库
       - name: Deploy
@@ -43,3 +60,5 @@ jobs:
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
           force_orphan: true
+          # 可选：部署前打印public目录内容，便于排查
+          verbose: true
