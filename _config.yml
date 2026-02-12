@@ -22,6 +22,18 @@ deploy:
 # ===== 主题配置 =====
 theme: landscape
 
+# ===== RSS订阅配置 =====
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content: true
+  content_limit: 140
+  content_limit_delim: ' '
+
+
+
 # ===== 其他默认配置（无需修改）=====
 default_layout: post
 titlecase: false
