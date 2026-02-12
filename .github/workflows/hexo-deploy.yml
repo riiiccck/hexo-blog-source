@@ -8,61 +8,59 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1：拉取源码到hexo-source子目录
+      # 1. 拉取源码到子目录
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: hexo-source  # 源码拉到子目录
+          path: hexo-source
 
-      # 步骤2：安装Node.js（去掉缓存，避免锁文件报错）
+      # 2. 安装 Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # 仅保留Node版本，删除cache配置
+          node-version: '18'
 
-      # 步骤3：全局安装Hexo CLI
+      # 3. 安装 Hexo CLI
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      # 步骤4：在空目录初始化Hexo
-      - name: Initialize Hexo in Empty Folder
+      # 4. 初始化 Hexo
+      - name: Initialize Hexo
         run: |
           mkdir -p hexo-blog
           cd hexo-blog
           hexo init .
           npm install
 
-      # 步骤5：复制自定义文件到Hexo项目
+      # 5. 覆盖为你自己的配置
       - name: Copy Custom Files
         run: |
-          # 复制配置文件
           cp -f ./hexo-source/_config.yml ./hexo-blog/_config.yml
-          # 复制package.json（确保依赖版本）
           cp -f ./hexo-source/package.json ./hexo-blog/package.json
-          # 复制文章
+
           mkdir -p ./hexo-blog/source/_posts
           cp -rf ./hexo-source/source/_posts/* ./hexo-blog/source/_posts/ 2>/dev/null || true
-          # 复制模板
+
           mkdir -p ./hexo-blog/scaffolds
           cp -rf ./hexo-source/scaffolds/* ./hexo-blog/scaffolds/ 2>/dev/null || true
-          # 重新安装依赖
+
           cd hexo-blog
           npm install
 
-      # 步骤6：生成静态文件
+      # 6. 生成静态文件
       - name: Generate Static Files
         run: |
           cd hexo-blog
           hexo clean && hexo generate
 
-      # 步骤7：部署到GitHub Pages
+      # 7. 部署到 GitHub Pages 仓库
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
           publish_dir: ./hexo-blog/public
-          publish_branch: main
           external_repository: riiiccck/riiiccck.github.io
+          publish_branch: main
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
