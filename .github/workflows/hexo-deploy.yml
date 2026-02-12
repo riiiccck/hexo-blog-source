@@ -1,8 +1,45 @@
-- name: Generate Static Files
-  run: |
-    pwd
-    ls -la
-    npx hexo clean
-    npx hexo generate
-    echo "=== public dir ==="
-    ls -la public || echo "NO PUBLIC DIR"
+name: Hexo Auto Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉源码
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # 2. Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3. Hexo CLI
+      - name: Install Hexo CLI
+        run: npm install -g hexo-cli
+
+      # 4. 安装依赖
+      - name: Install Dependencies
+        run: npm install
+
+      # 5. 生成静态文件
+      - name: Generate Static Files
+        run: |
+          hexo clean
+          hexo generate
+
+      # 6. 部署到 GitHub Pages 仓库
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
+          publish_dir: ./public
+          external_repository: riiiccck/riiiccck.github.io
+          publish_branch: main
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
