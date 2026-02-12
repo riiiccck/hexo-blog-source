@@ -55,11 +55,11 @@ jobs:
       - name: Build Hexo Static Files
         run: |
           echo "===== Hexo版本 ====="
-          npx hexo -v
+          npm exec -- hexo version
           echo "===== 清理旧文件 ====="
-          npx hexo clean
+          npm exec -- hexo clean
           echo "===== 生成静态文件（Debug模式） ====="
-          npx hexo generate --debug
+          npm exec -- hexo generate --debug
           echo "===== 验证public目录（核心！空则失败） ====="
           if [ ! -d ./public ] || [ -z "$(find ./public -mindepth 1 -maxdepth 1 -print -quit)" ]; then
             echo "❌ public目录不存在或为空！构建失败，终止部署"
