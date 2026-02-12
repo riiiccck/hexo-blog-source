@@ -2,7 +2,8 @@ name: Hexo Auto Deploy (GitHub Only)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -16,25 +17,47 @@ jobs:
           submodules: recursive
           token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
 
+      - name: Check Submodules Status
+        run: |
+          echo "===== 子模块列表 ====="
+          git submodule status
+          echo "===== themes目录内容 ====="
+          ls -la ./themes || echo "themes目录不存在"
+
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
+          cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Dependencies (Hexo+Plugins)
         run: |
-          node -v
+          echo "===== npm版本 ====="
           npm -v
+          echo "===== 当前npm registry ====="
           npm config get registry
-          npm install --no-audit --no-fund
+          echo "===== 安装项目依赖（避免npm ci严格锁文件导致中断） ====="
+          npm install --verbose
+          echo "===== 依赖安装完成，关键包检查 ====="
+          npm list --depth=0 || true
 
-      - name: Build Hexo
+      - name: Build Hexo Static Files
         run: |
+          echo "===== Hexo版本 ====="
+          npx hexo -v
+          echo "===== 清理旧文件 ====="
           npx hexo clean
+          echo "===== 生成静态文件（Debug模式） ====="
           npx hexo generate --debug
-          test -f ./public/index.html
+          echo "===== 验证public目录（核心！空则失败） ====="
+          if [ ! -d ./public ] || [ -z "$(find ./public -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+            echo "❌ public目录不存在或为空！构建失败，终止部署"
+            exit 1
+          fi
+          echo "✅ public目录有内容，文件列表："
           ls -la ./public
+          echo "===== public目录关键文件（index.html） ====="
+          head -20 ./public/index.html
 
       - name: Deploy to riiiccck.github.io
         uses: peaceiris/actions-gh-pages@v4
@@ -46,3 +69,11 @@ jobs:
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
           force_orphan: true
+          verbose: true
+
+      - name: Verify Deployment
+        run: |
+          echo "===== 部署完成！目标仓库最新提交 ====="
+          git clone https://${{ secrets.HEXO_DEPLOY_TOKEN }}@github.com/riiiccck/riiiccck.github.io.git temp-deploy
+          ls -la temp-deploy
+          rm -rf temp-deploy
