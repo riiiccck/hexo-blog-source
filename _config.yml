@@ -48,6 +48,14 @@ mermaid:
   version: "10.6.1"
   options:
     theme: 'default'
+  exclude_encode: false
+
+# ===== Emoji表情配置 =====
+emoji:
+  enable: true
+  className: emoji
+  styles:
+  customEmojis:
 
 # ===== 站点地图配置（SEO） =====
 sitemap:
