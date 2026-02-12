@@ -35,8 +35,9 @@ jobs:
           echo "===== npm版本 ====="
           npm -v
 
-          echo "===== 安装项目依赖 ====="
-          npm ci || npm install
+          echo "===== 删除不完整的lockfile并重新安装 ====="
+          rm -f package-lock.json
+          npm install
 
           echo "===== 验证hexo核心包已安装 ====="
           if [ ! -d ./node_modules/hexo ]; then
