@@ -59,8 +59,12 @@ jobs:
 
           echo "===== 添加Mermaid支持 ====="
           echo '<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>' >> themes/landscape/layout/_partial/after-footer.ejs
-          echo '<script>document.addEventListener("DOMContentLoaded", function() { if (typeof mermaid !== "undefined") { mermaid.initialize({ startOnLoad: true, theme: "default" }); } });</script>' >> themes/landscape/layout/_partial/after-footer.ejs
-          
+          echo '<script>document.addEventListener("DOMContentLoaded", function() { if (typeof mermaid !== "undefined") { mermaid.initialize({ startOnLoad: true, theme: "neutral", themeVariables: { background: "transparent" } }); } });</script>' >> themes/landscape/layout/_partial/after-footer.ejs
+          echo '<style>.mermaid { background: transparent !important; } .mermaid svg { background: transparent !important; }</style>' >> themes/landscape/layout/_partial/after-footer.ejs
+
+          echo "===== 添加构建时间显示 ====="
+          BUILD_TIME=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')
+          sed -i "s|Powered by <a|Built: ${BUILD_TIME} (CST) \| Powered by <a|g" themes/landscape/layout/_partial/footer.ejs
 
           echo "===== 主题文件列表 ====="
           ls -la themes/landscape/
