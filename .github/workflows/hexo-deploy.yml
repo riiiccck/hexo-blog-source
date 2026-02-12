@@ -40,9 +40,15 @@ jobs:
           npm config delete https-proxy || true
           npm config delete http-proxy || true
           echo "===== 安装项目依赖 ====="
+
+          if ! npm ci --verbose; then
+            echo "⚠️ npm ci失败（常见原因：lockfile严格校验），回退npm install"
+            npm install --verbose
+
           if ! npm ci --verbose --registry=https://registry.npmmirror.com; then
             echo "⚠️ npmmirror安装失败，回退到官方npm源"
             npm ci --verbose --registry=https://registry.npmjs.org
+
           fi
           echo "===== 已安装依赖列表 ====="
           npm list --depth=0
