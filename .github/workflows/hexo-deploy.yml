@@ -57,10 +57,6 @@ jobs:
           git clone https://github.com/hexojs/hexo-theme-landscape.git themes/landscape --depth=1
           rm -rf themes/landscape/.git
 
-          echo "===== 添加Mermaid支持到主题 ====="
-          # 在 after-footer.ejs 末尾添加 mermaid 调用
-          echo '<%- mermaid() %>' >> themes/landscape/layout/_partial/after-footer.ejs
-
           echo "===== 主题文件列表 ====="
           ls -la themes/landscape/
 
