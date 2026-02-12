@@ -1,0 +1,40 @@
+image: node:18
+
+stages:
+  - build
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+build_hexo:
+  stage: build
+  script:
+    - echo "===== Node/npm 版本 ====="
+    - node -v
+    - npm -v
+    - echo "===== 安装依赖 ====="
+    - |
+      if ! npm ci; then
+        echo "⚠️ npm ci失败（常见原因：lockfile严格校验），回退npm install"
+        npm install
+      fi
+    - echo "===== Hexo 构建 ====="
+    - npx hexo clean
+    - npx hexo generate --debug
+    - echo "===== 验证 public 目录 ====="
+    - |
+      if [ ! -d ./public ] || [ -z "$(find ./public -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+        echo "❌ public目录不存在或为空！构建失败，终止部署"
+        exit 1
+      fi
+    - echo "✅ public目录构建成功"
+    - ls -la ./public
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
