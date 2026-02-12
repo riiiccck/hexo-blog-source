@@ -1,48 +1,49 @@
 name: Hexo Auto Deploy
 
-# 触发条件：向源码仓的main分支推送代码时自动运行
 on:
   push:
     branches: [ main ]
 
-# 运行环境和步骤
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # 使用GitHub的Ubuntu服务器
+    runs-on: ubuntu-latest
     steps:
-      # 步骤1：拉取源码仓的代码
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 步骤2：安装Node.js环境（Hexo依赖Node）
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # 兼容Hexo的Node版本
-          cache: 'npm'        # 缓存依赖，加速下次构建
+          node-version: '18'  # 降级到18，兼容Hexo
+          cache: 'npm'
 
-      # 步骤3：安装Hexo和所有依赖
       - name: Install Dependencies
         run: |
           npm install -g hexo-cli
           npm install
 
-      # 步骤4：生成Hexo静态文件（生成到public目录）
-      - name: Generate Static Files
-        run: hexo clean && hexo generate
+      # 新增步骤：初始化Hexo项目（覆盖默认配置，保留自定义_config.yml）
+      - name: Initialize Hexo Project
+        run: |
+          # 初始化Hexo（当前目录），强制覆盖默认文件（保留我们的自定义配置）
+          hexo init . --force
+          # 重新安装依赖（避免init覆盖package.json）
+          npm install
+          # 拉取默认主题（landscape）
+          git clone https://github.com/hexojs/hexo-theme-landscape.git themes/landscape
 
-      # 步骤5：将静态文件推送到部署仓
+      - name: Generate Static Files
+        run: |
+          hexo clean && hexo generate
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          # 核心修正：将 github_token 改为 personal_token（对应PAT）
-          personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}  
-          # 修正注释：说明这是自定义的PAT令牌
-          publish_dir: ./public                      # Hexo生成的静态文件目录
-          publish_branch: main                       # 部署仓的主分支（默认main）
-          external_repository: riiiccck/riiiccck.github.io  # 你的部署仓（已正确填写）
-          # 新增：添加git提交身份，避免身份验证警告
+          personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
+          publish_dir: ./public
+          publish_branch: main
+          external_repository: riiiccck/riiiccck.github.io
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
