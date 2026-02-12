@@ -1,0 +1,40 @@
+# ===== 站点基础配置 =====
+title: Hexo博客  # 可改成你想要的博客标题
+subtitle: ''
+description: ''
+author: riiiccck  # 改成你的名字/昵称
+language: zh-CN  # 博客语言，中文选zh-CN
+timezone: 'Asia/Shanghai'  # 时区，国内选这个
+
+# ===== URL配置（关键！必须改）=====
+url: https://riiiccck.github.io  # 替换成你的部署仓地址（例如 https://zhangsan.github.io）
+root: /
+permalink: :year/:month/:day/:title/
+permalink_defaults:
+pretty_urls:
+  trailing_index: true
+  trailing_html: true
+
+# ===== 部署配置（留空即可，由Actions处理）=====
+deploy:
+  type: ''
+
+# ===== 其他默认配置（无需修改）=====
+default_layout: post
+titlecase: false
+external_link:
+  enable: true
+  field: site
+  exclude: ''
+filename_case: 0
+render_drafts: false
+post_asset_folder: false
+relative_link: false
+future: true
+highlight:
+  enable: true
+  line_number: true
+  auto_detect: false
+  tab_replace: ''
+  wrap: true
+  hljs: false
