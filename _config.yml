@@ -33,6 +33,36 @@ feed:
   content_limit_delim: ' '
 
 
+# ===== 数学公式配置（MathJax） =====
+mathjax:
+  tags: none  # 或 'ams' 或 'all'
+  single_dollars: true  # 启用 $...$ 行内公式
+  cjk_width: 0.9
+  normal_width: 0.6
+  append_css: true
+  every_page: false  # 设为true则每页都加载，或在文章front-matter中设置mathjax: true
+
+# ===== Mermaid图表配置 =====
+mermaid:
+  enable: true
+  version: "10.6.1"
+  options:
+    theme: 'default'
+
+# ===== 站点地图配置（SEO） =====
+sitemap:
+  path: sitemap.xml
+  rel: false
+  tags: true
+  categories: true
+
+# ===== 本地搜索配置 =====
+search:
+  path: search.xml
+  field: post
+  content: true
+  format: html
+
 
 # ===== 其他默认配置（无需修改）=====
 default_layout: post
