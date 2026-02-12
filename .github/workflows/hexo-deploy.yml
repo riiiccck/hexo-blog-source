@@ -28,15 +28,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'
 
       - name: Install Dependencies (Hexo+Plugins)
         run: |
           echo "===== npm版本 ====="
           npm -v
 
-          echo "===== 删除不完整的lockfile并重新安装 ====="
-          rm -f package-lock.json
+          echo "===== 安装项目依赖 ====="
           npm install
 
           echo "===== 验证hexo核心包已安装 ====="
