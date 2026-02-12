@@ -2,13 +2,15 @@ name: Hexo Auto Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. 拉取源码到子目录
+      # 1. 拉取源码
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
@@ -28,22 +30,22 @@ jobs:
       # 4. 初始化 Hexo
       - name: Initialize Hexo
         run: |
-          mkdir -p hexo-blog
+          mkdir hexo-blog
           cd hexo-blog
           hexo init .
           npm install
 
-      # 5. 覆盖为你自己的配置
+      # 5. 覆盖为你自己的内容
       - name: Copy Custom Files
         run: |
           cp -f ./hexo-source/_config.yml ./hexo-blog/_config.yml
           cp -f ./hexo-source/package.json ./hexo-blog/package.json
 
           mkdir -p ./hexo-blog/source/_posts
-          cp -rf ./hexo-source/source/_posts/* ./hexo-blog/source/_posts/ 2>/dev/null || true
+          cp -rf ./hexo-source/source/_posts/* ./hexo-blog/source/_posts/ || true
 
           mkdir -p ./hexo-blog/scaffolds
-          cp -rf ./hexo-source/scaffolds/* ./hexo-blog/scaffolds/ 2>/dev/null || true
+          cp -rf ./hexo-source/scaffolds/* ./hexo-blog/scaffolds/ || true
 
           cd hexo-blog
           npm install
@@ -52,15 +54,16 @@ jobs:
       - name: Generate Static Files
         run: |
           cd hexo-blog
-          hexo clean && hexo generate
+          hexo clean
+          hexo generate
 
-      # 7. 部署到 GitHub Pages 仓库
+      # 7. 发布到 GitHub Pages 仓库
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
-          publish_dir: ./hexo-blog/public
           external_repository: riiiccck/riiiccck.github.io
           publish_branch: main
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          publish_dir: ./hexo-blog/public
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
