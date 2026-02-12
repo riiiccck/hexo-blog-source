@@ -37,8 +37,12 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}  # GitHub自动生成的令牌，权限不足，需要手动配置
+          # 核心修正：将 github_token 改为 personal_token（对应PAT）
+          personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}  
+          # 修正注释：说明这是自定义的PAT令牌
           publish_dir: ./public                      # Hexo生成的静态文件目录
           publish_branch: main                       # 部署仓的主分支（默认main）
-          external_repository: riiiccck/riiiccck.github.io  # 替换成你的部署仓（例如 zhangsan/zhangsan.github.io）
- 
+          external_repository: riiiccck/riiiccck.github.io  # 你的部署仓（已正确填写）
+          # 新增：添加git提交身份，避免身份验证警告
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
