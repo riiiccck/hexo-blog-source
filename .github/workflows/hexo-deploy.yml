@@ -1,56 +1,73 @@
-name: Hexo Auto Deploy
+name: Hexo Auto Deploy (GitHub Only)
 
 on:
   push:
     branches:
       - main
+  # 手动触发（方便测试，无需推送代码）
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    # 开启完整的错误捕获，构建失败直接终止
     steps:
-      # 1. 拉取源码 + 子模块（关键修复：获取主题文件）
-      - name: Checkout source
+      # 1. 拉取源码+子模块（强制递归拉取，打印子模块信息）
+      - name: Checkout Source + Submodules
         uses: actions/checkout@v4
         with:
-          # 拉取所有历史（避免Hexo构建时git信息缺失）
-          fetch-depth: 0
-          # 拉取子模块（主题依赖）
-          submodules: recursive
+          fetch-depth: 0          # 拉取完整Git历史（避免Hexo git信息缺失）
+          submodules: recursive   # 强制拉取所有子模块（主题）
+          token: ${{ secrets.HEXO_DEPLOY_TOKEN }} # 子模块若为私有需token
 
-      # 2. 安装 Node + 缓存依赖（提升速度+稳定性）
-      - name: Setup Node
+      # 2. 打印子模块状态（日志里确认主题是否拉取成功）
+      - name: Check Submodules Status
+        run: |
+          echo "===== 子模块列表 ====="
+          git submodule status
+          echo "===== themes目录内容 ====="
+          ls -la ./themes || echo "themes目录不存在"
+
+      # 3. 安装Node+缓存依赖（指定版本，减少兼容问题）
+      - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          # 缓存npm依赖，避免重复安装
           cache: 'npm'
 
-      # 3. 安装依赖（增加错误输出）
-      - name: Install dependencies
+      # 4. 安装依赖（打印详细日志，方便排查）
+      - name: Install Dependencies (Hexo+Plugins)
         run: |
-          # 打印npm版本，便于排查
+          echo "===== npm版本 ====="
           npm -v
-          # 安装项目依赖（含hexo相关插件）
-          npm install --verbose
-          # 全局安装hexo-cli（指定版本，避免版本兼容问题）
+          echo "===== 安装项目依赖 ====="
+          npm install --verbose --registry=https://registry.npmmirror.com
+          echo "===== 全局安装hexo-cli ====="
           npm install -g hexo-cli@latest
+          echo "===== 已安装依赖列表 ====="
+          npm list
 
-      # 4. 生成静态文件（增加错误校验，打印日志）
-      - name: Build Hexo
+      # 5. 构建Hexo（极致日志+空目录校验）
+      - name: Build Hexo Static Files
         run: |
-          # 打印hexo版本
+          echo "===== Hexo版本 ====="
           hexo -v
-          # 清理旧文件
+          echo "===== 清理旧文件 ====="
           hexo clean
-          # 生成静态文件（--debug打印详细日志，失败则终止）
+          echo "===== 生成静态文件（Debug模式） ====="
           hexo generate --debug
-          # 验证public目录是否有内容（关键：空则终止）
-          ls -la ./public || (echo "public目录为空，构建失败" && exit 1)
+          echo "===== 验证public目录（核心！空则失败） ====="
+          if [ -z "$(ls -A ./public)" ]; then
+            echo "❌ public目录为空！构建失败，终止部署"
+            exit 1
+          else
+            echo "✅ public目录有内容，文件列表："
+            ls -la ./public
+            echo "===== public目录关键文件（index.html） ====="
+            cat ./public/index.html | head -20 # 打印首页前20行，确认生成成功
+          fi
 
-      # 5. 部署到 GitHub Pages 仓库
-      - name: Deploy
+      # 6. 部署到GitHub Pages仓库
+      - name: Deploy to riiiccck.github.io
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
@@ -60,5 +77,14 @@ jobs:
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
           force_orphan: true
-          # 可选：部署前打印public目录内容，便于排查
-          verbose: true
+          verbose: true # 打印部署详细日志
+
+      # 7. 部署后校验（打印目标仓库提交信息）
+      - name: Verify Deployment
+        run: |
+          echo "===== 部署完成！目标仓库最新提交 ====="
+          git clone https://${{ secrets.HEXO_DEPLOY_TOKEN }}@github.com/riiiccck/riiiccck.github.io.git temp-deploy
+          ls -la temp-deploy
+          rm -rf temp-deploy
+          
+           
