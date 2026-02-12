@@ -35,7 +35,7 @@ social:
 codeblock:
   theme:
     light: default
-    dark: tomorrow-night
+    dark: github-dark
   copy_button:
     enable: true
     style: flat
@@ -118,3 +118,4 @@ font:
 post_meta:
   updated_at:
     enable: true
+
