@@ -6,6 +6,10 @@ scheme: Gemini
 # 暗黑模式 (true 自动跟随系统 | false 关闭)
 darkmode: true
 
+# 暗黑模式切换按钮
+dark_mode_toggle:
+  enable: true
+
 # 菜单配置
 menu:
   home: / || fa fa-home
