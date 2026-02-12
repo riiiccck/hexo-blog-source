@@ -80,11 +80,41 @@ jobs:
       - name: Inject Mermaid Support
         run: |
           echo "===== 注入 Mermaid 支持 ====="
-          # 创建 Mermaid 初始化脚本
-          MERMAID_SCRIPT='<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("pre code.language-mermaid,pre code.mermaid").forEach(function(el){var div=document.createElement("div");div.className="mermaid";div.textContent=el.textContent;el.parentNode.replaceWith(div)});mermaid.initialize({startOnLoad:true,theme:"neutral",themeVariables:{background:"transparent"}});mermaid.run()});</script>'
-          # 注入到所有 HTML 文件的 </body> 标签前
-          find ./public -name "*.html" -exec sed -i "s|</body>|${MERMAID_SCRIPT}</body>|g" {} \;
-          echo "✅ Mermaid 注入完成"
+          python3 << 'PYEOF'
+          import os
+          import glob
+          
+          mermaid_script = '''<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+          <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            var codes = document.querySelectorAll("figure.highlight.mermaid .code pre, pre code.language-mermaid");
+            codes.forEach(function(el) {
+              var div = document.createElement("div");
+              div.className = "mermaid";
+              div.textContent = el.textContent;
+              var parent = el.closest("figure.highlight") || el.parentNode;
+              parent.replaceWith(div);
+            });
+            if (document.querySelectorAll(".mermaid").length > 0) {
+              mermaid.initialize({startOnLoad: false, theme: "neutral"});
+              mermaid.run();
+            }
+          });
+          </script>'''
+          
+          count = 0
+          for html_file in glob.glob("./public/**/*.html", recursive=True):
+              with open(html_file, "r", encoding="utf-8") as f:
+                  content = f.read()
+              if "</body>" in content and "mermaid.min.js" not in content:
+                  content = content.replace("</body>", mermaid_script + "</body>")
+                  with open(html_file, "w", encoding="utf-8") as f:
+                      f.write(content)
+                  count += 1
+          print(f"✅ 注入完成，处理了 {count} 个 HTML 文件")
+          PYEOF
+
+
 
       - name: Deploy to riiiccck.github.io
         uses: peaceiris/actions-gh-pages@v4
