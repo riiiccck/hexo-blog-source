@@ -4,22 +4,19 @@ on:
   push:
     branches:
       - main
-  # 手动触发（方便测试，无需推送代码）
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. 拉取源码+子模块（强制递归拉取，打印子模块信息）
       - name: Checkout Source + Submodules
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # 拉取完整Git历史（避免Hexo git信息缺失）
-          submodules: recursive   # 强制拉取所有子模块（主题）
-          token: ${{ secrets.HEXO_DEPLOY_TOKEN }} # 子模块若为私有需token
+          fetch-depth: 0
+          submodules: recursive
+          token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
 
-      # 2. 打印子模块状态（日志里确认主题是否拉取成功）
       - name: Check Submodules Status
         run: |
           echo "===== 子模块列表 ====="
@@ -27,46 +24,41 @@ jobs:
           echo "===== themes目录内容 ====="
           ls -la ./themes || echo "themes目录不存在"
 
-      # 3. 安装Node+缓存依赖（指定版本，减少兼容问题）
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
 
-      # 4. 安装依赖（打印详细日志，方便排查）
       - name: Install Dependencies (Hexo+Plugins)
         run: |
           echo "===== npm版本 ====="
           npm -v
-          echo "===== 安装项目依赖 ====="
-          npm install --verbose --registry=https://registry.npmmirror.com
-          echo "===== 全局安装hexo-cli ====="
-          npm install -g hexo-cli@latest
-          echo "===== 已安装依赖列表 ====="
-          npm list
+          echo "===== 当前npm registry ====="
+          npm config get registry
+          echo "===== 安装项目依赖（避免npm ci严格锁文件导致中断） ====="
+          npm install --verbose
+          echo "===== 依赖安装完成，关键包检查 ====="
+          npm list --depth=0 || true
 
-      # 5. 构建Hexo（极致日志+空目录校验）
       - name: Build Hexo Static Files
         run: |
           echo "===== Hexo版本 ====="
-          hexo -v
+          npx hexo -v
           echo "===== 清理旧文件 ====="
-          hexo clean
+          npx hexo clean
           echo "===== 生成静态文件（Debug模式） ====="
-          hexo generate --debug
+          npx hexo generate --debug
           echo "===== 验证public目录（核心！空则失败） ====="
-          if [ -z "$(ls -A ./public)" ]; then
-            echo "❌ public目录为空！构建失败，终止部署"
+          if [ ! -d ./public ] || [ -z "$(find ./public -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+            echo "❌ public目录不存在或为空！构建失败，终止部署"
             exit 1
-          else
-            echo "✅ public目录有内容，文件列表："
-            ls -la ./public
-            echo "===== public目录关键文件（index.html） ====="
-            cat ./public/index.html | head -20 # 打印首页前20行，确认生成成功
           fi
+          echo "✅ public目录有内容，文件列表："
+          ls -la ./public
+          echo "===== public目录关键文件（index.html） ====="
+          head -20 ./public/index.html
 
-      # 6. 部署到GitHub Pages仓库
       - name: Deploy to riiiccck.github.io
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -77,14 +69,11 @@ jobs:
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
           force_orphan: true
-          verbose: true # 打印部署详细日志
+          verbose: true
 
-      # 7. 部署后校验（打印目标仓库提交信息）
       - name: Verify Deployment
         run: |
           echo "===== 部署完成！目标仓库最新提交 ====="
           git clone https://${{ secrets.HEXO_DEPLOY_TOKEN }}@github.com/riiiccck/riiiccck.github.io.git temp-deploy
           ls -la temp-deploy
           rm -rf temp-deploy
-          
-           
