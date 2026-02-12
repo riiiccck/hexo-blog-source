@@ -62,4 +62,7 @@ jobs:
         with:
           personal_token: ${{ secrets.HEXO_DEPLOY_TOKEN }}
           publish_dir: ./hexo-blog/public
-          publish
+          publish_branch: main
+          external_repository: riiiccck/riiiccck.github.io
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
