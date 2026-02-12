@@ -58,16 +58,9 @@ jobs:
           rm -rf themes/landscape/.git
 
           echo "===== 添加Mermaid支持 ====="
-          cat >> themes/landscape/layout/_partial/after-footer.ejs << 'EOF'
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (typeof mermaid !== 'undefined') {
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    }
-  });
-</script>
-EOF
+          echo '<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>' >> themes/landscape/layout/_partial/after-footer.ejs
+          echo '<script>document.addEventListener("DOMContentLoaded", function() { if (typeof mermaid !== "undefined") { mermaid.initialize({ startOnLoad: true, theme: "default" }); } });</script>' >> themes/landscape/layout/_partial/after-footer.ejs
+          
 
           echo "===== 主题文件列表 ====="
           ls -la themes/landscape/
